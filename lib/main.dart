@@ -19,6 +19,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List ListName = ["My List", "List 1", "List 2"];
+
     return Scaffold(
       //set custom height for the appbar
       appBar: AppBar(
@@ -50,8 +52,53 @@ class HomePage extends StatelessWidget {
                       fontFamily: 'Carbo',
                     )),
                 IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => Center(
+                        child: Container(
+                          height: MediaQuery.of(context).size.height / 3,
+                          width: MediaQuery.of(context).size.width - 50,
+                          color: const Color.fromRGBO(225, 225, 225, 0),
+                          child: Card(
+                            color: Colors.white,
+                            shadowColor: Colors.blue,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: TextField(
+                                    decoration:
+                                        InputDecoration(hintText: "Add List"),
+                                    maxLines: 1,
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "Save",
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.add,
+                  ),
                 ),
               ],
             ),
@@ -73,18 +120,21 @@ class HomePage extends StatelessWidget {
                   ),
                   context: context,
                   builder: (context) => Padding(
-                    padding: const EdgeInsets.all(40),
-                    child: Wrap(
-                      children: const [
-                        Text(
-                          "My List",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                    padding: const EdgeInsets.all(10),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: ListName.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          title: Text(
+                            ListName[index],
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 );
