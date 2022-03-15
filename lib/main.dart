@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:todo/pages/no_content.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,40 +55,44 @@ class HomePage extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) => Center(
-                        child: Container(
-                          height: MediaQuery.of(context).size.height / 3,
-                          width: MediaQuery.of(context).size.width - 50,
-                          color: const Color.fromRGBO(225, 225, 225, 0),
-                          child: Card(
-                            color: Colors.white,
-                            shadowColor: Colors.blue,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(20),
-                                  child: TextField(
-                                    decoration:
-                                        InputDecoration(hintText: "Add List"),
-                                    maxLines: 1,
-                                  ),
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).viewInsets.bottom),
+                          child: Container(
+                            height: MediaQuery.of(context).size.height / 4,
+                            width: MediaQuery.of(context).size.width - 50,
+                            color: const Color.fromRGBO(225, 225, 225, 0),
+                            child: Card(
+                              color: Colors.white,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20),
                                 ),
-                                TextButton(
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "Save",
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: TextField(
+                                      decoration:
+                                          InputDecoration(hintText: "Add List"),
+                                      maxLines: 1,
                                     ),
                                   ),
-                                ),
-                              ],
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: const Text(
+                                      "Save",
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -105,7 +108,7 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-      body: const NoContent(),
+      body: const TaskView(), //const NoContent(),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
@@ -225,8 +228,16 @@ class HomePage extends StatelessWidget {
 }
 
 //add Task class
-class ActionButton extends StatelessWidget {
+class ActionButton extends StatefulWidget {
   const ActionButton({Key? key}) : super(key: key);
+
+  @override
+  State<ActionButton> createState() => _ActionButtonState();
+}
+
+//State for Add task class
+class _ActionButtonState extends State<ActionButton> {
+  DateTime selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -234,8 +245,9 @@ class ActionButton extends StatelessWidget {
       padding: MediaQuery.of(context).viewInsets,
       child: Padding(
         padding: const EdgeInsets.all(30),
-        child: Wrap(
-          alignment: WrapAlignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Padding(
               padding: EdgeInsets.only(bottom: 10),
@@ -245,19 +257,177 @@ class ActionButton extends StatelessWidget {
                 maxLines: 1,
               ),
             ),
-            TextButton(
-              onPressed: () {},
-              child: const Text(
-                "Save",
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    selectDate(context);
+                  },
+                  icon: const Icon(
+                    Icons.date_range,
+                    color: Colors.blue,
+                  ),
                 ),
-              ),
+                const Text(
+                  "Current Date: ",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {},
+                  child: const Text(
+                    "Save",
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  //function for setting date and time.
+  selectDate(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2022),
+      lastDate: DateTime(2023),
+    );
+    if (selected != null && selected != selectedDate) {
+      setState(() {
+        selectedDate = selected;
+      });
+    }
+  }
+}
+
+//View Task class
+class TaskView extends StatefulWidget {
+  const TaskView({Key? key}) : super(key: key);
+
+  @override
+  State<TaskView> createState() => _TaskViewState();
+}
+
+//State for viewing Task class
+class _TaskViewState extends State<TaskView> {
+  @override
+  Widget build(BuildContext context) {
+    List taskName = ["Go to the canteen", "Workout in gym", "Visit uncle"];
+    bool isCompleted = false;
+    return ListView.builder(
+      itemCount: taskName.length,
+      itemBuilder: (BuildContext context, index) {
+        return ListTile(
+          onLongPress: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EditTask(),
+              ),
+            );
+          },
+          leading: Checkbox(
+            value: isCompleted,
+            onChanged: (bool? value) {
+              setState(() {
+                isCompleted = value!;
+              });
+            },
+          ),
+          title: Text(taskName[index]),
+        );
+      },
+    );
+  }
+}
+
+//Edit task class
+class EditTask extends StatefulWidget {
+  const EditTask({Key? key}) : super(key: key);
+
+  @override
+  State<EditTask> createState() => _EditTaskState();
+}
+
+class _EditTaskState extends State<EditTask> {
+  DateTime selectedDate = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: const Icon(
+          Icons.navigate_before,
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const TextField(
+              decoration: InputDecoration(hintText: "Edit Task"),
+              maxLines: 1,
+            ),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    selectDate(context);
+                  },
+                  icon: const Icon(
+                    Icons.date_range,
+                    color: Colors.blue,
+                  ),
+                ),
+                const Text(
+                  "Edit Date",
+                  // "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //function for setting date and time.
+  selectDate(BuildContext context) async {
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2022),
+      lastDate: DateTime(2023),
+    );
+    // if (selected != null && selected != selectedDate) {
+    //   setState(() {
+    //     selectedDate = selected;
+    //   });
+    // }
   }
 }
