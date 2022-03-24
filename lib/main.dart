@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:todo/pages/add_task.dart';
+import 'package:todo/pages/task_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,7 +11,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(title: "toDO", home: HomePage());
+    return const MaterialApp(
+      title: "toDO",
+      home: HomePage(),
+    );
   }
 }
 
@@ -224,210 +229,5 @@ class HomePage extends StatelessWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
-  }
-}
-
-//add Task class
-class ActionButton extends StatefulWidget {
-  const ActionButton({Key? key}) : super(key: key);
-
-  @override
-  State<ActionButton> createState() => _ActionButtonState();
-}
-
-//State for Add task class
-class _ActionButtonState extends State<ActionButton> {
-  DateTime selectedDate = DateTime.now();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: MediaQuery.of(context).viewInsets,
-      child: Padding(
-        padding: const EdgeInsets.all(30),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 10),
-              child: TextField(
-                autofocus: true,
-                decoration: InputDecoration(hintText: "Add Task"),
-                maxLines: 1,
-              ),
-            ),
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    selectDate(context);
-                  },
-                  icon: const Icon(
-                    Icons.date_range,
-                    color: Colors.blue,
-                  ),
-                ),
-                const Text(
-                  "Current Date: ",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    "Save",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  //function for setting date and time.
-  selectDate(BuildContext context) async {
-    final DateTime? selected = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2022),
-      lastDate: DateTime(2023),
-    );
-    if (selected != null && selected != selectedDate) {
-      setState(() {
-        selectedDate = selected;
-      });
-    }
-  }
-}
-
-//View Task class
-class TaskView extends StatefulWidget {
-  const TaskView({Key? key}) : super(key: key);
-
-  @override
-  State<TaskView> createState() => _TaskViewState();
-}
-
-//State for viewing Task class
-class _TaskViewState extends State<TaskView> {
-  @override
-  Widget build(BuildContext context) {
-    List taskName = ["Go to the canteen", "Workout in gym", "Visit uncle"];
-    bool isCompleted = false;
-    return ListView.builder(
-      itemCount: taskName.length,
-      itemBuilder: (BuildContext context, index) {
-        return ListTile(
-          onLongPress: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const EditTask(),
-              ),
-            );
-          },
-          leading: Checkbox(
-            value: isCompleted,
-            onChanged: (bool? value) {
-              setState(() {
-                isCompleted = value!;
-              });
-            },
-          ),
-          title: Text(taskName[index]),
-        );
-      },
-    );
-  }
-}
-
-//Edit task class
-class EditTask extends StatefulWidget {
-  const EditTask({Key? key}) : super(key: key);
-
-  @override
-  State<EditTask> createState() => _EditTaskState();
-}
-
-class _EditTaskState extends State<EditTask> {
-  DateTime selectedDate = DateTime.now();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const Icon(
-          Icons.navigate_before,
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const TextField(
-              decoration: InputDecoration(hintText: "Edit Task"),
-              maxLines: 1,
-            ),
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    selectDate(context);
-                  },
-                  icon: const Icon(
-                    Icons.date_range,
-                    color: Colors.blue,
-                  ),
-                ),
-                const Text(
-                  "Edit Date",
-                  // "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  //function for setting date and time.
-  selectDate(BuildContext context) async {
-    final DateTime? selected = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2022),
-      lastDate: DateTime(2023),
-    );
-    // if (selected != null && selected != selectedDate) {
-    //   setState(() {
-    //     selectedDate = selected;
-    //   });
-    // }
   }
 }
