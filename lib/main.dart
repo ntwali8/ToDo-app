@@ -1,17 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:todo/pages/add_list.dart';
 import 'package:todo/pages/add_task.dart';
 import 'package:todo/pages/task_view.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: "toDO",
       home: HomePage(),
     );
@@ -19,12 +24,13 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
+
+  final Stream<QuerySnapshot> list =
+      FirebaseFirestore.instance.collection('App-Data').snapshots();
 
   @override
   Widget build(BuildContext context) {
-    List ListName = ["My List", "List 1", "List 2"];
-
     return Scaffold(
       //set custom height for the appbar
       appBar: AppBar(
@@ -59,49 +65,7 @@ class HomePage extends StatelessWidget {
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (BuildContext context) => Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).viewInsets.bottom),
-                          child: Container(
-                            height: MediaQuery.of(context).size.height / 4,
-                            width: MediaQuery.of(context).size.width - 50,
-                            color: const Color.fromRGBO(225, 225, 225, 0),
-                            child: Card(
-                              color: Colors.white,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Padding(
-                                    padding: EdgeInsets.all(20),
-                                    child: TextField(
-                                      decoration:
-                                          InputDecoration(hintText: "Add List"),
-                                      maxLines: 1,
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {},
-                                    child: const Text(
-                                      "Save",
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      builder: (BuildContext context) => AddList(),
                     );
                   },
                   icon: const Icon(
@@ -129,18 +93,38 @@ class HomePage extends StatelessWidget {
                   context: context,
                   builder: (context) => Padding(
                     padding: const EdgeInsets.all(10),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: ListName.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return ListTile(
-                          title: Text(
-                            ListName[index],
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                    child: StreamBuilder(
+                      stream: list,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.hasError) {
+                          return const Text("Something wrong happened");
+                        }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Padding(
+                            padding: EdgeInsets.all(
+                                MediaQuery.of(context).size.height - 30),
+                            child: const CircularProgressIndicator(),
+                          );
+                        }
+                        //save data in a data variable
+                        final data = snapshot.requireData;
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: data.size,
+                          itemBuilder: (BuildContext context, index) {
+                            return ListTile(
+                              title: Text(
+                                data.docs[index]['Task'],
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
